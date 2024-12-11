@@ -2,10 +2,10 @@
   <v-container>
     <v-row>
       <v-col cols="12">
-        <h1>目前事項 {{ currentText }}</h1>
+        <h1>目前事項: {{ currentText }}</h1>
       </v-col>
       <v-col cols="12">
-        <digit v-for="(data, i) in currentTime" :key="i" :data="data" color="white"></digit>
+        <digit v-for="(data, i) in currentTime" :key="i" :data="data" :color="textcolor"></digit>
       </v-col>
       <v-col cols="12">
         <v-btn
@@ -25,6 +25,17 @@ import { ref, computed } from 'vue'
 import { useListStore } from '@/stores/list'
 import { useSettingsStore } from '@/stores/settings'
 import { storeToRefs } from 'pinia'
+import { useTheme } from 'vuetify'
+
+const theme = useTheme()
+
+const textcolor = computed(() => {
+  if (theme.global.name.value === 'light') {
+    return 'black'
+  } else {
+    return 'white'
+  }
+})
 
 const STATUS = {
   STOP: 0,

@@ -6,6 +6,16 @@
         <v-btn prepend-icon="mdi-home" to="/">首頁</v-btn>
         <v-btn prepend-icon="mdi-format-list-bulleted" to="/list">事項</v-btn>
         <v-btn prepend-icon="mdi-cog" to="/settings">設定</v-btn>
+        <v-btn prepend-icon="mdi-invert-colors">
+          切換風格
+          <v-menu activator="parent">
+            <v-list>
+              <v-list-item v-for="(index, i) in colorMenu" :key="i" link>
+                <v-list-item-title @click="changeListTheme(i)">{{ index }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </v-btn>
       </v-container>
     </v-app-bar>
     <v-main>
@@ -29,3 +39,29 @@
     </v-main>
   </v-app>
 </template>
+
+<script setup>
+import { useTheme } from 'vuetify'
+import { storeToRefs } from 'pinia'
+import { useThemeStore } from '@/stores/theme'
+import { onMounted } from 'vue'
+
+const theme = useTheme()
+const themeStore = useThemeStore()
+const { currentTheme, getmyThemes } = storeToRefs(themeStore)
+const { setTheme } = themeStore
+const colorMenu = ['深色', '亮色', '淺色', '紫色', '紅色']
+
+let id = 0
+
+onMounted(() => {
+  id = getmyThemes.value.indexOf(currentTheme.value)
+  theme.global.name.value = currentTheme.value
+})
+
+const changeListTheme = (i) => {
+  id = i
+  setTheme(id)
+  theme.global.name.value = currentTheme.value
+}
+</script>
