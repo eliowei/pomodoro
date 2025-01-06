@@ -2,9 +2,7 @@
   <v-container>
     <v-row>
       <v-col cols="12">
-        <h1 class="text-center">未完成</h1>
-      </v-col>
-      <v-col cols="12">
+        <h1 class="text-center">新增事項</h1>
         <v-text-field
           ref="inputTextField"
           v-model="input"
@@ -15,6 +13,12 @@
           @keydown.enter="onInputSubmit"
           @click:append="onInputSubmit"
         ></v-text-field>
+      </v-col>
+      <v-col cols="12">
+        <h1 class="text-center">未完成</h1>
+        <v-text-field v-model="search" label="過濾未完成事項"></v-text-field>
+      </v-col>
+      <v-col cols="12">
         <v-table>
           <thead>
             <tr>
@@ -23,7 +27,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, i) in items" :key="item.id">
+            <tr v-for="(item, i) in filteredItems" :key="item.id">
               <td>
                 <v-text-field
                   v-show="item.edit"
@@ -51,6 +55,7 @@
       </v-col>
       <v-col cols="12">
         <h1 class="text-center">已完成</h1>
+        <v-text-field v-model="searchFinished" label="過濾已完成事項"></v-text-field>
       </v-col>
       <v-col cols="12">
         <v-table>
@@ -65,7 +70,7 @@
               <td coolspan="2">沒有項目</td>
             </tr>
 
-            <tr v-for="item in finishedItems" :key="item.id">
+            <tr v-for="item in filteredFinishedItems" :key="item.id">
               <td>{{ item.text }}</td>
               <td>
                 <v-btn icon="mdi-delete" @click="delFinishedItem(item.id)"></v-btn>
@@ -81,7 +86,7 @@
 <script setup>
 import { useListStore } from '@/stores/list'
 import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const list = useListStore()
 const { addItem, editItem, delItem, cancelEditItem, confirmEditItem, delFinishedItem } = list
@@ -90,6 +95,8 @@ const { items, finishedItems } = storeToRefs(list)
 const input = ref('')
 const inputTextField = ref(null)
 const editTextField = ref([])
+const search = ref('')
+const searchFinished = ref('')
 
 const rules = {
   required: (value) => {
@@ -99,18 +106,30 @@ const rules = {
     return value.length >= 3 || '必須三個字以上'
   },
 }
-
 const onInputSubmit = () => {
   console.log(inputTextField.value.isValid)
   if (!inputTextField.value.isValid) return
   addItem(input.value)
   inputTextField.value.reset()
+  console.log(typeof items)
 }
 
 const onEditSubmit = (id, i) => {
   if (!editTextField.value[i].isValid) return
   confirmEditItem(id)
 }
+
+const filteredItems = computed(() => {
+  return Object.values(items.value).filter((item) => {
+    return item.text.includes(search.value)
+  })
+})
+
+const filteredFinishedItems = computed(() => {
+  return Object.values(finishedItems.value).filter((item) => {
+    return item.text.includes(searchFinished.value)
+  })
+})
 </script>
 
 <route lang="yaml">
